@@ -1,0 +1,19 @@
+name: Deployment Splunk
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    uses: fssou/gh-workflows/.github/workflows/reusable-deploy-docker-compose-with-ssh.yaml@main
+    secrets:
+      ssh_key: ${{ secrets.SSH_KEY }}
+      ssh_host: ${{ secrets.SSH_HOST }}
+      docker_compose_envs: |
+        export SPLUNK_PASSWORD="${{ secrets.SPLUNK_PASSWORD }}"
+    with:
+      docker_compose_project_name: splunk
+      docker_compose_recreate: true
+      destroy: false

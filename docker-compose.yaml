@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  splunk:
+    image: splunk/splunk
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD}
+      SPLUNK_UPGRADE: true
+      SPLUNK_HTTP_ENABLESSL: true
+      SPLUNK_HTTP_ENABLESSL_CERT: /etc/letsencrypt/live/francl.in/fullchain.pem
+      SPLUNK_HTTP_ENABLESSL_PRIVKEY: /etc/letsencrypt/live/francl.in/privkey.pem
+    volumes:
+      - so1-var:/opt/splunk/var
+      - so1-etc:/opt/splunk/etc
+      - /etc/letsencrypt/live/francl.in:/etc/letsencrypt/live/francl.in:ro
+      - /etc/letsencrypt/archive/francl.in:/etc/letsencrypt/archive/francl.in:ro
+    networks:
+      splunk:
+        aliases:
+          - splunk
+      gateway:
+        aliases:
+          - splunk
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+networks:
+  gateway:
+    external: true
+    enable_ipv6: true
+  splunk:
+    driver: bridge
+    enable_ipv6: true
+    attachable: true
+
+volumes:
+  so1-var:
+  so1-etc:
